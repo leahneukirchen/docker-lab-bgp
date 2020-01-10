@@ -1,0 +1,110 @@
+version: '3.7'
+services:
+  router1:
+    build: .
+    networks:
+      backbone:
+        ipv4_address: 192.0.2.11
+      test-net-1:
+        ipv4_address: 10.69.1.2
+      test-net-v6-1:
+      backbone-v6:
+        ipv6_address: 2001:db8:bb:1::11
+    cap_add:
+    - NET_ADMIN   # configure routes
+    volumes:
+    - ./bird-1.conf:/etc/bird.conf
+
+  router2:
+    build: .
+    networks:
+      backbone:
+        ipv4_address: 192.0.2.12
+      backbone-v6:
+        ipv6_address: 2001:db8:bb:1::12
+    cap_add:
+    - NET_ADMIN   # configure routes
+    volumes:
+    - ./bird-2.conf:/etc/bird.conf
+
+  router3:
+    build: .
+    networks:
+      backbone:
+        ipv4_address: 192.0.2.13
+      test-net-2:
+        ipv4_address: 10.69.2.2
+      test-net-v6-1:
+      backbone-v6:
+        ipv6_address: 2001:db8:bb:1::13
+    cap_add:
+    - NET_ADMIN   # configure routes
+    volumes:
+    - ./bird-3.conf:/etc/bird.conf
+  router4:
+    build: .
+    networks:
+      backbone:
+        ipv4_address: 192.0.2.14
+      backbone-v6:
+        ipv6_address: 2001:db8:bb:1::14
+    cap_add:
+    - NET_ADMIN   # configure routes
+    volumes:
+    - ./bird-4.conf:/etc/bird.conf
+
+  client1:
+    build: .
+    networks:
+      test-net-1:
+        ipv4_address: 10.69.1.11
+      test-net-v6-1:
+        ipv6_address: 2001:db8:69:1::11
+    cap_add:
+    - NET_ADMIN   # configure routes
+    command:
+    - sh
+    - -c 
+    - "ip route replace default via 10.69.1.2; sleep 9999999"
+
+  client2:
+    build: .
+    networks:
+      test-net-2:
+        ipv4_address: 10.69.2.11
+      test-net-v6-2:
+        ipv6_address: 2001:db8:69:2::11
+    cap_add:
+    - NET_ADMIN   # configure routes
+    command:
+    - sh
+    - -c 
+    - "ip route replace default via 10.69.2.2; sleep 9999999"
+
+networks:
+  backbone:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.0.2.0/24
+
+  test-net-1:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.69.1.0/24
+  test-net-2:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.69.2.0/24
+
+  backbone-v6:
+    external:
+      name: backbone-v6
+  test-net-v6-1:
+    external:
+      name: test-net-v6-1
+  test-net-v6-2:
+    external:
+      name: test-net-v6-2

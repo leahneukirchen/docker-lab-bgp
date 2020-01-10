@@ -1,0 +1,12 @@
+graph {
+  rankdir=LR;
+  "test-net-1\n10.69.1.0/24" [shape=rect];
+  client1 -- "test-net-1\n10.69.1.0/24" -- router1;
+  subgraph cluster_0 {
+  label = "backbone\n192.0.2.0/16";
+  router1 -- router4 -- router3;
+  router1 -- router2 -- router3;
+  }
+  router3 -- "test-net-2\n10.69.2.0/24" -- client2;
+  "test-net-2\n10.69.2.0/24" [shape=rect];
+}
